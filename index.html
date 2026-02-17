@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarix — Intelligent Marketing & Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   THEME TOKENS
+══════════════════════════════════════ */
+[data-theme="dark"]{
+  --bg:#020305; --deep:#060a10; --surface:#0b1220; --surface2:#0f1828;
+  --text:#ede8df; --muted:#52606e; --muted2:#a8b4c0;
+  --border:rgba(184,150,90,.18); --border2:rgba(184,150,90,.1);
+  --gold:#b8965a; --gold2:#d4b07a; --gold-hi:#e8c98a; --gold-dim:rgba(184,150,90,.09);
+  --nav-bg:rgba(2,3,5,.94); --card:rgba(11,18,32,.95);
+  --tog-bg:#0f1828; --tog-bd:rgba(184,150,90,.3);
+  --shadow:0 32px 80px rgba(0,0,0,.55);
+  --stat-txt:rgba(184,150,90,.12);
+}
+[data-theme="light"]{
+  --bg:#faf7f2; --deep:#f2ede4; --surface:#e8e0d2; --surface2:#ddd5c5;
+  --text:#100d08; --muted:#7a6e60; --muted2:#1c1710;
+  --border:rgba(100,72,20,.22); --border2:rgba(100,72,20,.12);
+  --gold:#7a5218; --gold2:#9a6a24; --gold-hi:#b87e2e; --gold-dim:rgba(100,72,20,.07);
+  --nav-bg:rgba(250,247,242,.97); --card:rgba(232,224,210,.98);
+  --tog-bg:#e8e0d2; --tog-bd:rgba(100,72,20,.3);
+  --shadow:0 32px 80px rgba(50,32,8,.13);
+  --stat-txt:rgba(100,72,20,.12);
+}
+
+/* ══════════════════════════════════════
+   BASE
+══════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Raleway',sans-serif;
+  background:var(--bg);color:var(--text);
+  overflow-x:hidden;cursor:none;
+  transition:background .55s ease,color .55s ease;
+}
+
+/* ── CURSOR ── */
+#cur{position:fixed;width:6px;height:6px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,background .4s;}
+#cur-r{position:fixed;width:32px;height:32px;border:1px solid var(--border);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .18s ease,border-color .4s;}
+body.hov #cur{width:10px;height:10px;}
+body.hov #cur-r{transform:translate(-50%,-50%) scale(2);border-color:var(--gold);}
+
+/* ── GLOW ── */
+.g1,.g2{position:fixed;border-radius:50%;pointer-events:none;z-index:0;transition:opacity .6s;}
+.g1{width:900px;height:900px;background:radial-gradient(circle,var(--gold-dim) 0%,transparent 60%);top:-350px;right:-350px;filter:blur(80px);}
+.g2{width:600px;height:600px;background:radial-gradient(circle,var(--gold-dim) 0%,transparent 60%);bottom:-100px;left:-200px;filter:blur(100px);}
+
+/* ══════════════════════════════════════
+   CONTROLS BAR (top + bottom)
+══════════════════════════════════════ */
+.ctrl-bar{
+  position:relative;z-index:300;
+  display:flex;align-items:center;justify-content:flex-end;gap:12px;
+  padding:10px 8vw;
+  border-bottom:1px solid var(--border2);
+  background:var(--deep);
+  transition:background .55s,border-color .55s;
+}
+.ctrl-bar.bottom-bar{
+  border-bottom:none;border-top:1px solid var(--border2);
+}
+
+/* Theme toggle */
+.theme-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--tog-bg);border:1px solid var(--tog-bd);
+  border-radius:50px;padding:6px 14px 6px 10px;
+  cursor:pointer;transition:all .3s;user-select:none;
+  color:var(--muted2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;font-weight:500;
+}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.theme-btn svg{width:14px;height:14px;fill:none;stroke:var(--gold);stroke-width:1.5;transition:all .3s;flex-shrink:0;}
+
+/* Theme pill (track + thumb) */
+.theme-pill{
+  position:relative;width:44px;height:24px;
+  background:var(--tog-bg);border:1px solid var(--tog-bd);
+  border-radius:50px;cursor:pointer;transition:all .3s;flex-shrink:0;
+}
+.theme-pill::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--gold);transition:transform .35s cubic-bezier(.4,0,.2,1),background .3s;
+}
+[data-theme="light"] .theme-pill::after{transform:translateX(20px);}
+.theme-pill:hover{border-color:var(--gold);}
+
+/* Language switcher */
+.lang-wrap{position:relative;}
+.lang-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--tog-bg);border:1px solid var(--tog-bd);
+  border-radius:4px;padding:7px 14px;
+  cursor:pointer;transition:all .3s;user-select:none;
+  color:var(--muted2);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;font-weight:500;
+}
+.lang-btn:hover{border-color:var(--gold);color:var(--gold);}
+.lang-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .3s;}
+.lang-wrap.open .lang-btn svg{transform:rotate(180deg);}
+.lang-flag{font-size:.85rem;}
+.lang-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;overflow:hidden;
+  opacity:0;pointer-events:none;
+  transform:translateY(-8px);
+  transition:all .25s ease;
+  min-width:160px;
+  box-shadow:var(--shadow);
+  z-index:999;
+}
+.lang-wrap.open .lang-dropdown{opacity:1;pointer-events:all;transform:translateY(0);}
+.lang-option{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 18px;cursor:pointer;
+  font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted2);font-weight:300;
+  transition:all .2s;border-bottom:1px solid var(--border2);
+}
+.lang-option:last-child{border-bottom:none;}
+.lang-option:hover{background:var(--gold-dim);color:var(--gold);}
+.lang-option.active{color:var(--gold);}
+.lang-option .flag{font-size:1rem;}
+.ctrl-divider{width:1px;height:20px;background:var(--border);flex-shrink:0;}
+.ctrl-label{font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:500;}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:28px 8vw;
+  transition:all .5s ease;
+}
+nav.s{
+  background:var(--nav-bg);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  padding:16px 8vw;
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.55rem;font-weight:600;
+  color:var(--text);text-decoration:none;
+  letter-spacing:4px;text-transform:uppercase;
+  transition:color .4s;
+}
+.logo em{color:var(--gold);font-style:normal;}
+.nav-r{display:flex;align-items:center;gap:3rem;}
+.nav-r a{
+  color:var(--muted2);text-decoration:none;
+  font-size:.8rem;font-weight:500;letter-spacing:2px;
+  text-transform:uppercase;transition:color .3s;
+}
+.nav-r a:hover{color:var(--gold);}
+.nav-cta{
+  padding:10px 28px;
+  border:1px solid var(--border) !important;
+  color:var(--gold) !important;
+  border-radius:2px;transition:all .3s !important;
+}
+.nav-cta:hover{background:var(--gold) !important;color:var(--bg) !important;border-color:var(--gold) !important;}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero{
+  position:relative;z-index:2;
+  min-height:100vh;display:flex;align-items:center;
+  padding:180px 8vw 120px;
+}
+.hero-inner{max-width:1000px;}
+.brow{display:inline-flex;align-items:center;gap:16px;margin-bottom:48px;opacity:0;animation:up 1.2s ease .2s forwards;}
+.brow-ln{width:48px;height:1px;background:var(--gold);transition:background .4s;}
+.brow-tx{font-size:.76rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:500;transition:color .4s;}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,10vw,9.5rem);font-weight:500;line-height:.95;letter-spacing:-2px;opacity:0;animation:up 1.2s ease .4s forwards;}
+h1 em{font-style:italic;color:var(--gold);}
+.hero-p{margin-top:40px;max-width:580px;font-size:1.08rem;color:var(--muted2);line-height:1.9;font-weight:500;opacity:0;animation:up 1.2s ease .6s forwards;}
+.hero-btns{margin-top:64px;display:flex;gap:20px;flex-wrap:wrap;opacity:0;animation:up 1.2s ease .8s forwards;}
+.btn-g{display:inline-flex;align-items:center;gap:10px;padding:17px 48px;background:var(--gold);color:var(--bg);text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;border-radius:1px;transition:all .3s;}
+.btn-g:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 20px 50px var(--gold-dim);}
+.btn-o{display:inline-flex;align-items:center;gap:10px;padding:17px 48px;border:1px solid var(--border);color:var(--muted2);text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;border-radius:1px;transition:all .3s;}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px);}
+
+/* ══════════════════════════════════════
+   TICKER
+══════════════════════════════════════ */
+.ticker{position:relative;z-index:2;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;overflow:hidden;background:var(--deep);transition:background .55s,border-color .55s;}
+.ticker-track{display:flex;animation:tick 35s linear infinite;width:max-content;}
+.ticker-item{display:flex;align-items:center;gap:52px;padding:0 26px;font-size:.68rem;letter-spacing:3.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;font-weight:500;}
+.ticker-item em{color:var(--gold);font-style:normal;font-size:.6rem;}
+@keyframes tick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ══════════════════════════════════════
+   ABOUT SPLIT
+══════════════════════════════════════ */
+.about{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);transition:background .55s;}
+.about-l,.about-r{background:var(--deep);padding:80px 8vw;transition:background .55s;}
+.about-l h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.8rem);font-weight:500;line-height:1.1;letter-spacing:-.5px;}
+.about-l h2 em{font-style:italic;color:var(--gold);}
+.about-l p{margin-top:28px;font-size:1rem;color:var(--muted2);line-height:1.9;font-weight:500;}
+.about-r{display:flex;flex-direction:column;justify-content:center;gap:0;}
+.stat-row{display:flex;align-items:center;gap:20px;padding:24px 0;border-bottom:1px solid var(--border);}
+.stat-row:first-child{border-top:1px solid var(--border);}
+.stat-big{font-family:'Cormorant Garamond',serif;font-size:3.2rem;font-weight:500;color:var(--gold);line-height:1;min-width:90px;}
+.stat-info .lbl{font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.stat-info .desc{font-size:.97rem;color:var(--muted2);font-weight:500;}
+
+/* ══════════════════════════════════════
+   SERVICES
+══════════════════════════════════════ */
+.services{position:relative;z-index:2;background:var(--bg);padding:130px 8vw;transition:background .55s;}
+.sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:80px;gap:40px;}
+.tag-row{display:inline-flex;align-items:center;gap:12px;margin-bottom:14px;}
+.tag-row .ln{width:28px;height:1px;background:var(--gold);transition:background .4s;}
+.tag-row span{font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:500;transition:color .4s;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.5rem);font-weight:500;line-height:1.05;letter-spacing:-.5px;}
+.sec-title em{font-style:italic;color:var(--gold);}
+.sec-note{max-width:360px;font-size:.97rem;color:var(--muted2);line-height:1.85;font-weight:500;text-align:right;padding-bottom:4px;}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);transition:background .55s;}
+.svc{background:var(--bg);padding:52px 44px 56px;position:relative;overflow:hidden;transition:background .4s,border-color .4s;}
+.svc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transform-origin:center;transition:transform .5s ease;}
+.svc:hover::after{transform:scaleX(1);}
+.svc:hover{background:var(--surface);}
+.svc-n{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;color:var(--stat-txt);line-height:1;margin-bottom:28px;transition:color .4s;}
+.svc h3{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:600;margin-bottom:14px;}
+.svc p{font-size:.95rem;color:var(--muted2);line-height:1.85;font-weight:500;}
+
+/* ══════════════════════════════════════
+   PLATFORMS
+══════════════════════════════════════ */
+.platforms{position:relative;z-index:2;background:var(--deep);padding:130px 8vw;transition:background .55s;}
+.plat-inner{display:grid;grid-template-columns:1fr 1.4fr;gap:100px;align-items:center;}
+.plat-left p{margin-top:20px;font-size:1rem;color:var(--muted2);line-height:1.9;font-weight:500;}
+.plat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);transition:background .55s;}
+.plat-item{background:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 12px;gap:10px;transition:background .35s;cursor:default;}
+.plat-item:hover{background:var(--surface);}
+.plat-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .3s;}
+.plat-item:hover .plat-icon{opacity:1;}
+.plat-icon svg{width:26px;height:26px;}
+.plat-name{font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:500;}
+
+/* ══════════════════════════════════════
+   PROCESS
+══════════════════════════════════════ */
+.process{position:relative;z-index:2;background:var(--bg);padding:130px 8vw;transition:background .55s;}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:80px;transition:background .55s;}
+.pstep{background:var(--bg);padding:52px 40px;transition:background .55s;}
+.pstep-n{font-family:'Cormorant Garamond',serif;font-size:4.5rem;font-weight:300;color:var(--stat-txt);line-height:1;margin-bottom:20px;transition:color .4s;}
+.pstep-tag{font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:500;display:block;transition:color .4s;}
+.pstep h4{font-size:1.1rem;font-weight:600;margin-bottom:12px;letter-spacing:.3px;}
+.pstep p{font-size:.95rem;color:var(--muted2);line-height:1.85;font-weight:500;}
+
+/* ══════════════════════════════════════
+   CONTACT
+══════════════════════════════════════ */
+.contact{position:relative;z-index:2;background:var(--deep);padding:130px 8vw;transition:background .55s;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:start;}
+.c-rule{width:48px;height:1px;background:var(--gold);margin:28px 0 32px;transition:background .4s;}
+.contact-l>p{font-size:1rem;color:var(--muted2);line-height:1.9;font-weight:500;margin-bottom:52px;}
+.c-row{display:flex;align-items:baseline;gap:18px;padding:18px 0;border-bottom:1px solid var(--border);transition:border-color .4s;}
+.c-row:first-of-type{border-top:1px solid var(--border);}
+.c-lbl{font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:600;min-width:52px;}
+.c-val{font-size:1rem;color:var(--text);font-weight:600;text-decoration:none;transition:color .25s;letter-spacing:.3px;}
+.c-val:hover{color:var(--gold);}
+.contact-box{background:var(--surface);border:1px solid var(--border);padding:64px 56px;transition:background .55s,border-color .55s;}
+.contact-box h3{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:600;margin-bottom:12px;}
+.contact-box>p{font-size:.97rem;color:var(--muted2);line-height:1.85;margin-bottom:44px;font-weight:500;}
+.wa-stack{display:flex;flex-direction:column;gap:12px;}
+.wa-btn{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-radius:1px;text-decoration:none;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;transition:all .3s;}
+.wa-fill{background:#0d7a6f;color:#fff;}
+.wa-fill svg{fill:#fff;}
+.wa-fill:hover{background:#0a6a61;transform:translateY(-1px);}
+.wa-line{border:1px solid rgba(13,122,111,.4);color:#0d9e91;}
+.wa-line svg{fill:#0d9e91;}
+.wa-line:hover{border-color:#0d9e91;background:rgba(13,122,111,.07);transform:translateY(-1px);}
+.wa-btn svg{width:20px;height:20px;flex-shrink:0;}
+.wa-note-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.wa-dot{width:6px;height:6px;background:#0d9e91;border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.wa-note{font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);}
+.email-row{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-radius:1px;text-decoration:none;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;border:1px solid var(--border);color:var(--gold);margin-top:16px;transition:all .3s;}
+.email-row:hover{background:var(--gold-dim);transform:translateY(-1px);}
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+footer{position:relative;z-index:2;background:var(--bg);border-top:1px solid var(--border);padding:48px 8vw;transition:background .55s,border-color .55s;}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;}
+.f-logo{font-family:'Cormorant Garamond',serif;font-size:1.25rem;letter-spacing:4px;text-transform:uppercase;color:var(--text);text-decoration:none;transition:color .4s;}
+.f-logo em{color:var(--gold);font-style:normal;}
+.f-copy{font-size:.8rem;color:var(--muted);text-align:center;line-height:1.9;}
+.f-nav{display:flex;gap:28px;}
+.f-nav a{font-size:.76rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+.f-nav a:hover{color:var(--gold);}
+
+/* ══════════════════════════════════════
+   ANIMATIONS & REVEAL
+══════════════════════════════════════ */
+@keyframes up{from{opacity:0;transform:translateY(36px);}to{opacity:1;transform:translateY(0);}}
+.r{opacity:0;transform:translateY(28px);transition:opacity .9s ease,transform .9s ease;}
+.r.v{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:980px){
+  .nav-r{display:none;}
+  .about{grid-template-columns:1fr;}
+  .sec-hdr{flex-direction:column;align-items:flex-start;}
+  .sec-note{text-align:left;max-width:100%;}
+  .svc-grid{grid-template-columns:1fr 1fr;}
+  .plat-inner{grid-template-columns:1fr;}
+  .process-grid{grid-template-columns:repeat(2,1fr);}
+  .contact-grid{grid-template-columns:1fr;gap:64px;}
+  .footer-inner{flex-direction:column;gap:24px;text-align:center;}
+  .f-nav{flex-wrap:wrap;justify-content:center;}
+}
+@media(max-width:600px){
+  h1{font-size:3.5rem;letter-spacing:-1px;}
+  .svc-grid{grid-template-columns:1fr;}
+  .plat-grid{grid-template-columns:repeat(3,1fr);}
+  .process-grid{grid-template-columns:1fr;}
+  .ctrl-bar{gap:8px;}
+  .ctrl-label{display:none;}
+  .ctrl-divider{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div class="g1"></div>
+<div class="g2"></div>
+
+<!-- ══ TOP CONTROL BAR ══ -->
+<div class="ctrl-bar" id="ctrl-top">
+  <span class="ctrl-label" data-i="appearance">Appearance</span>
+  <div class="ctrl-divider"></div>
+
+  <!-- Theme toggle -->
+  <div class="theme-btn" id="themeToggleTop" title="Toggle theme">
+    <!-- Moon icon -->
+    <svg id="iconMoonTop" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <!-- Sun icon -->
+    <svg id="iconSunTop" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <span id="themeLabel" data-i="dark_mode">Dark Mode</span>
+  </div>
+  <div class="theme-pill" id="themePillTop"></div>
+
+  <div class="ctrl-divider"></div>
+  <span class="ctrl-label" data-i="language">Language</span>
+  <div class="ctrl-divider"></div>
+
+  <!-- Language -->
+  <div class="lang-wrap" id="langWrapTop">
+    <div class="lang-btn" id="langBtnTop">
+      <span class="lang-flag" id="langFlagTop">🇬🇧</span>
+      <span id="langNameTop">EN</span>
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lang-dropdown" id="langDropTop">
+      <div class="lang-option active" data-lang="en"><span class="flag">🇬🇧</span>English</div>
+      <div class="lang-option" data-lang="fr"><span class="flag">🇫🇷</span>Français</div>
+      <div class="lang-option" data-lang="es"><span class="flag">🇪🇸</span>Español</div>
+      <div class="lang-option" data-lang="zh"><span class="flag">🇨🇳</span>中文</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav id="nav">
+  <a href="#" class="logo">Clar<em>ix</em></a>
+  <div class="nav-r">
+    <a href="#services" data-i="nav_services">Services</a>
+    <a href="#platforms" data-i="nav_platforms">Platforms</a>
+    <a href="#process" data-i="nav_process">Process</a>
+    <a href="#contact" class="nav-cta" data-i="nav_cta">Work With Us</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="brow">
+      <div class="brow-ln"></div>
+      <span class="brow-tx" data-i="hero_eyebrow">Exclusive AI-Powered Growth Agency · By Invitation</span>
+    </div>
+    <h1 data-i="hero_h1">Your competition<br>is already<br><em>losing ground.</em></h1>
+    <p class="hero-p" data-i="hero_p">Clarix engineers revenue-generating intelligence for brands that refuse to be ordinary. We architect AI systems that command attention, convert prospects, and compound growth — silently, relentlessly, around the clock.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-g" data-i="hero_cta1">Start a Conversation →</a>
+      <a href="#services" class="btn-o" data-i="hero_cta2">Our Services</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TICKER ══ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item" data-i="ticker">AI Automation <em>✦</em> Lead Generation <em>✦</em> Brand Strategy <em>✦</em> Paid Advertising <em>✦</em> Conversion Funnels <em>✦</em> Content Strategy <em>✦</em> Audience Growth <em>✦</em> CRM Integration <em>✦</em> Campaign Management <em>✦</em> Performance Analytics <em>✦</em></div>
+    <div class="ticker-item" aria-hidden="true" data-i="ticker">AI Automation <em>✦</em> Lead Generation <em>✦</em> Brand Strategy <em>✦</em> Paid Advertising <em>✦</em> Conversion Funnels <em>✦</em> Content Strategy <em>✦</em> Audience Growth <em>✦</em> CRM Integration <em>✦</em> Campaign Management <em>✦</em> Performance Analytics <em>✦</em></div>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<div class="about">
+  <div class="about-l r">
+    <h2 data-i="about_h2">Not an agency.<br>A <em>competitive weapon.</em></h2>
+    <div style="width:48px;height:1px;background:var(--gold);margin:32px 0;transition:background .4s;"></div>
+    <p data-i="about_p">While your competitors hire more people, post more content, and spend more on ads — our clients deploy AI systems that outperform entire marketing departments at a fraction of the cost. Clarix doesn't manage your marketing. We engineer its dominance.</p>
+  </div>
+  <div class="about-r r d1">
+    <div class="stat-row"><div class="stat-big">60</div><div class="stat-info"><div class="lbl" data-i="stat1_lbl">Hudson Street, New York</div><div class="desc" data-i="stat1_desc">Enterprise infrastructure. Zero downtime.</div></div></div>
+    <div class="stat-row"><div class="stat-big">24/7</div><div class="stat-info"><div class="lbl" data-i="stat2_lbl">Always Active</div><div class="desc" data-i="stat2_desc">Your AI agents never sleep, never miss a lead.</div></div></div>
+    <div class="stat-row"><div class="stat-big">12+</div><div class="stat-info"><div class="lbl" data-i="stat3_lbl">Channels Covered</div><div class="desc" data-i="stat3_desc">Every platform your audience uses, managed.</div></div></div>
+  </div>
+</div>
+
+<!-- ══ SERVICES ══ -->
+<section class="services" id="services">
+  <div class="sec-hdr r">
+    <div>
+      <div class="tag-row"><div class="ln"></div><span data-i="svc_tag">What We Do</span></div>
+      <h2 class="sec-title" data-i="svc_title">Precision services.<br><em>Measurable outcomes.</em></h2>
+    </div>
+    <p class="sec-note r d2" data-i="svc_note">Every service is designed around one goal — growing your business. We don't believe in busy work. We believe in results you can see in your numbers.</p>
+  </div>
+  <div class="svc-grid">
+    <div class="svc r"><div class="svc-n">01</div><h3 data-i="s1_h">AI Agent Deployment</h3><p data-i="s1_p">Intelligent AI agents trained on your business — voice, products, goals. They engage leads, answer questions, and close conversations around the clock.</p></div>
+    <div class="svc r d1"><div class="svc-n">02</div><h3 data-i="s2_h">Paid Advertising Management</h3><p data-i="s2_p">Strategic ad campaigns across Meta, Google, TikTok, and YouTube — designed for maximum return. Every dollar spent is tracked, optimised, and accountable.</p></div>
+    <div class="svc r d2"><div class="svc-n">03</div><h3 data-i="s3_h">Conversion Funnel Automation</h3><p data-i="s3_p">From first click to closed sale — fully automated. When a prospect engages, your AI follows up instantly, qualifies them, and moves them down the funnel.</p></div>
+    <div class="svc r"><div class="svc-n">04</div><h3 data-i="s4_h">Brand &amp; Content Strategy</h3><p data-i="s4_p">A brand without a clear voice is invisible. We develop positioning, messaging frameworks, and content systems that make your brand recognisable and premium.</p></div>
+    <div class="svc r d1"><div class="svc-n">05</div><h3 data-i="s5_h">Audience Growth &amp; Engagement</h3><p data-i="s5_p">Organic and paid strategies to grow your audience across all relevant platforms. Quality followers who convert — not vanity metrics that don't pay invoices.</p></div>
+    <div class="svc r d2"><div class="svc-n">06</div><h3 data-i="s6_h">White-Label &amp; Agency Solutions</h3><p data-i="s6_p">Resell our AI infrastructure under your own brand. We power your agency's capabilities behind the scenes while you focus on clients and growth.</p></div>
+  </div>
+</section>
+
+<!-- ══ PLATFORMS ══ -->
+<section class="platforms" id="platforms">
+  <div class="plat-inner">
+    <div class="plat-left r">
+      <div class="tag-row"><div class="ln"></div><span data-i="plat_tag">Platforms</span></div>
+      <h2 class="sec-title" data-i="plat_title">Every channel.<br><em>Fully covered.</em></h2>
+      <p data-i="plat_p">Whether your audience lives on WhatsApp, watches YouTube, scrolls TikTok, or reads emails — we meet them there. The same standard of excellence on every platform.</p>
+    </div>
+    <div class="plat-grid r d1">
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><span class="plat-name">WhatsApp</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="url(#ig)"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div><span class="plat-name">Instagram</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><span class="plat-name">Facebook</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="var(--text)"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.79a4.83 4.83 0 01-1.02-.1z"/></svg></div><span class="plat-name">TikTok</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></div><span class="plat-name">YouTube</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#229ED9"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 12a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div><span class="plat-name">Telegram</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#1DA1F2"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></div><span class="plat-name">X / Twitter</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div><span class="plat-name">LinkedIn</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#E60023"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.987C24.007 5.367 18.641.001 12.017.001z"/></svg></div><span class="plat-name">Pinterest</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#FFFC00"><path d="M12.206.793c.99 0 4.347.029 6.689 1.201l-.036-.017c2.137 1.049 3.468 2.724 3.468 5.17 0 2.481-1.143 4.479-3.142 5.867l-.036.016c-1.942 1.365-4.536 2.109-7.08 2.109-1.384 0-2.606-.194-3.742-.555l.103.03-2.447 1.323.602-2.09C5.01 12.75 4.01 11.18 4.01 9.17c0-2.456 1.33-4.131 3.468-5.17l-.036.017C9.72.793 11.216.793 12.206.793z"/></svg></div><span class="plat-name">Snapchat</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg></div><span class="plat-name">Discord</span></div>
+      <div class="plat-item"><div class="plat-icon"><svg viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg></div><span class="plat-name">Email</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROCESS ══ -->
+<section class="process" id="process">
+  <div class="r">
+    <div class="tag-row"><div class="ln"></div><span data-i="proc_tag">How We Work</span></div>
+    <h2 class="sec-title" data-i="proc_title">Operational from<br><em>day one.</em></h2>
+  </div>
+  <div class="process-grid">
+    <div class="pstep r"><div class="pstep-n">01</div><span class="pstep-tag" data-i="p1_tag">Discovery</span><h4 data-i="p1_h">Strategy Session</h4><p data-i="p1_p">We learn your business deeply — audience, goals, channels, competitors. We don't start building until we understand your definition of success.</p></div>
+    <div class="pstep r d1"><div class="pstep-n">02</div><span class="pstep-tag" data-i="p2_tag">Architecture</span><h4 data-i="p2_h">System Design</h4><p data-i="p2_p">We design the full automation and marketing architecture — AI agents, ad funnels, content pipelines — before a single line of code is written.</p></div>
+    <div class="pstep r d2"><div class="pstep-n">03</div><span class="pstep-tag" data-i="p3_tag">Deployment</span><h4 data-i="p3_h">Go Live</h4><p data-i="p3_p">Your system launches. AI agents go live. Campaigns begin. Everything is monitored, measured, and optimised from the moment it's active.</p></div>
+    <div class="pstep r d3"><div class="pstep-n">04</div><span class="pstep-tag" data-i="p4_tag">Growth</span><h4 data-i="p4_h">Continuous Optimisation</h4><p data-i="p4_p">We refine every element based on real data. What works gets scaled. What doesn't gets replaced. Your system gets sharper every month.</p></div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section class="contact" id="contact">
+  <div class="contact-grid">
+    <div class="contact-l r">
+      <div class="tag-row"><div class="ln"></div><span data-i="con_tag">Engagement</span></div>
+      <h2 class="sec-title" data-i="con_title">Reserved for<br>the few who<br><em>demand more.</em></h2>
+      <div class="c-rule"></div>
+      <p data-i="con_p">Clarix does not work with everyone. We partner exclusively with businesses serious enough to invest in decisive advantage — and disciplined enough to execute on it. If that is you, the conversation starts here.</p>
+      <div class="c-row"><span class="c-lbl" data-i="con_ng">Nigeria</span><a href="tel:+2348067136311" class="c-val">+234 806 713 6311</a></div>
+      <div class="c-row"><span class="c-lbl" data-i="con_us">USA</span><a href="tel:+12029388566" class="c-val">+1 202 938 8566</a></div>
+      <div class="c-row"><span class="c-lbl" data-i="con_em">Email</span><a href="mailto:hello@clarixtech.com" class="c-val">hello@clarixtech.com</a></div>
+      <div class="c-row"><span class="c-lbl" data-i="con_web">Web</span><span class="c-val">clarixtech.com</span></div>
+    </div>
+    <div class="contact-box r d1">
+      <h3 data-i="box_h">Secure your position</h3>
+      <p data-i="box_p">We accept a limited number of new partnerships each quarter. Reach us directly — we respond to serious enquiries within the hour.</p>
+      <div class="wa-stack">
+        <a href="https://wa.me/2348067136311" class="wa-btn wa-fill" target="_blank"><span data-i="wa_ng">Engage via WhatsApp — Nigeria</span><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+        <a href="https://wa.me/12029388566" class="wa-btn wa-line" target="_blank"><span data-i="wa_us">Engage via WhatsApp — USA</span><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+        <div class="wa-note-row"><div class="wa-dot"></div><span class="wa-note" data-i="wa_note">Priority response · Serious enquiries only</span></div>
+        <a href="mailto:hello@clarixtech.com" class="email-row"><span data-i="email_cta">Submit a Formal Enquiry →</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <a href="#" class="f-logo">Clar<em>ix</em></a>
+    <div class="f-copy">
+      <p>© 2026 Clarix. <span data-i="footer_rights">All rights reserved.</span></p>
+      <p>clarixtech.com · <span data-i="footer_tag">Engineered Growth · AI Command</span></p>
+    </div>
+    <div class="f-nav">
+      <a href="#services" data-i="nav_services">Services</a>
+      <a href="#platforms" data-i="nav_platforms">Platforms</a>
+      <a href="#contact" data-i="nav_process">Contact</a>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM CONTROL BAR ══ -->
+  <div class="ctrl-bar bottom-bar" style="margin-top:36px;padding-left:0;padding-right:0;" id="ctrl-bot">
+    <span class="ctrl-label" data-i="appearance">Appearance</span>
+    <div class="ctrl-divider"></div>
+    <div class="theme-btn" id="themeToggleBot">
+      <svg id="iconMoonBot" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="iconSunBot" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="themeLabelBot" data-i="dark_mode">Dark Mode</span>
+    </div>
+    <div class="theme-pill" id="themePillBot"></div>
+    <div class="ctrl-divider"></div>
+    <span class="ctrl-label" data-i="language">Language</span>
+    <div class="ctrl-divider"></div>
+    <div class="lang-wrap" id="langWrapBot">
+      <div class="lang-btn" id="langBtnBot">
+        <span class="lang-flag" id="langFlagBot">🇬🇧</span>
+        <span id="langNameBot">EN</span>
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lang-dropdown" id="langDropBot" style="top:auto;bottom:calc(100% + 8px);">
+        <div class="lang-option active" data-lang="en"><span class="flag">🇬🇧</span>English</div>
+        <div class="lang-option" data-lang="fr"><span class="flag">🇫🇷</span>Français</div>
+        <div class="lang-option" data-lang="es"><span class="flag">🇪🇸</span>Español</div>
+        <div class="lang-option" data-lang="zh"><span class="flag">🇨🇳</span>中文</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════
+   TRANSLATIONS
+══════════════════════════════════════ */
+const T = {
+  en:{
+    appearance:"Appearance", language:"Language", dark_mode:"Dark Mode", light_mode:"Light Mode",
+    hero_eyebrow:"Exclusive AI-Powered Growth Agency · By Invitation",
+    hero_h1:`Your competition<br>is already<br><em>losing ground.</em>`,
+    hero_p:"Clarix engineers revenue-generating intelligence for brands that refuse to be ordinary. We architect AI systems that command attention, convert prospects, and compound growth — silently, relentlessly, around the clock.",
+    hero_cta1:"Request a Strategy Session →", hero_cta2:"Explore Our Work",
+    ticker:`Revenue Intelligence <em>✦</em> Market Domination <em>✦</em> Precision Targeting <em>✦</em> Conversion Architecture <em>✦</em> Brand Supremacy <em>✦</em> AI-Orchestrated Growth <em>✦</em> Audience Command <em>✦</em> Competitive Displacement <em>✦</em> Perpetual Pipeline <em>✦</em> Elite Positioning <em>✦</em>`,
+    about_h2:`Not an agency.<br>A <em>competitive weapon.</em>`,
+    about_p:"While your competitors hire more people, post more content, and spend more on ads — our clients deploy AI systems that outperform entire marketing departments at a fraction of the cost. Clarix doesn't manage your marketing. We engineer its dominance.",
+    stat1_lbl:"60 Hudson Street, New York", stat1_desc:"Colocation-grade infrastructure. Built for zero compromise.",
+    stat2_lbl:"Perpetual Operation", stat2_desc:"Your AI workforce never sleeps, never stalls, never misses a signal.",
+    stat3_lbl:"Channels Dominated", stat3_desc:"Wherever your market lives, your presence is engineered there.",
+    svc_tag:"Our Capabilities", svc_title:`Engineered for<br><em>market supremacy.</em>`,
+    svc_note:"Every capability we deploy is calibrated to one outcome — decisive, measurable commercial advantage. We don't offer services. We architect results.",
+    s1_h:"AI Revenue Agents", s1_p:"Bespoke intelligence trained on your brand, your offers, your market. These agents don't respond — they persuade, qualify, and close. Operating at a velocity no human team can match, on every channel simultaneously.",
+    s2_h:"High-Performance Paid Media", s2_p:"Surgical ad campaigns across Meta, Google, TikTok, and YouTube engineered for maximum return on every dollar deployed. Data-driven, continuously optimised, and ruthlessly accountable to your bottom line.",
+    s3_h:"Automated Conversion Architecture", s3_p:"The moment a prospect shows intent, your system takes over — instantly, intelligently, without human delay. We design the full journey from first signal to closed revenue, with nothing left to chance.",
+    s4_h:"Brand Positioning & Narrative", s4_p:"In a saturated market, the brand with the sharpest voice wins. We craft positioning frameworks and narrative systems that make your brand the obvious, premium choice — before the conversation even begins.",
+    s5_h:"Audience Acquisition & Dominance", s5_p:"We don't grow audiences. We cultivate communities of high-intent buyers. Organic and paid strategies engineered to attract the right people — those who convert, retain, and refer.",
+    s6_h:"White-Label Intelligence Platform", s6_p:"Agencies and consultancies resell our AI infrastructure under their own identity. We operate as your invisible engine — delivering enterprise-grade outcomes while your brand takes the credit.",
+    plat_tag:"Command Centre", plat_title:`Every arena.<br><em>Fully commanded.</em>`,
+    plat_p:"Your audience doesn't live on one platform. Neither does your Clarix intelligence. We deploy, manage, and optimise across every channel your market occupies — with the same exacting standard on each.",
+    proc_tag:"Our Methodology", proc_title:`Precision-deployed.<br><em>From day one.</em>`,
+    p1_tag:"Intelligence Gathering", p1_h:"Deep Diagnostic", p1_p:"We dissect your market, your competitors, your audience psychology, and your current position. Most agencies skip this. We build everything on it.",
+    p2_tag:"Strategic Architecture", p2_h:"System Blueprint", p2_p:"Before a single asset is built, we architect the complete intelligence framework — AI behaviour, campaign logic, conversion pathways, and measurement infrastructure.",
+    p3_tag:"Precision Deployment", p3_h:"Market Entry", p3_p:"Your system goes live with surgical precision. Every agent, every campaign, every automation is stress-tested before it touches your market.",
+    p4_tag:"Perpetual Refinement", p4_h:"Compound Optimisation", p4_p:"Every data signal is harvested, analysed, and actioned. Your system doesn't plateau — it compounds. Each month sharper, faster, and more commercially lethal than the last.",
+    con_tag:"Engagement", con_title:`Reserved for<br>the few who<br><em>demand more.</em>`,
+    con_p:"Clarix does not work with everyone. We partner exclusively with businesses serious enough to invest in decisive advantage — and disciplined enough to execute on it. If that is you, the conversation starts here.",
+    con_ng:"Nigeria", con_us:"USA", con_em:"Email", con_web:"Web",
+    box_h:"Secure your position", box_p:"We accept a limited number of new partnerships each quarter. Reach us directly — we respond to serious enquiries within the hour.",
+    wa_ng:"Engage via WhatsApp — Nigeria", wa_us:"Engage via WhatsApp — USA", wa_note:"Priority response · Serious enquiries only",
+    email_cta:"Submit a Formal Enquiry →",
+    footer_rights:"All rights reserved.", footer_tag:"Engineered Growth · AI Command",
+    nav_services:"Services", nav_platforms:"Platforms", nav_process:"Process", nav_cta:"Work With Us"
+  },
+  fr:{
+    appearance:"Apparence", language:"Langue", dark_mode:"Mode Sombre", light_mode:"Mode Clair",
+    hero_eyebrow:"Agence de Croissance IA Exclusive · Sur Invitation",
+    hero_h1:`Vos concurrents<br>perdent déjà<br><em>du terrain.</em>`,
+    hero_p:"Clarix conçoit des systèmes d'intelligence générant des revenus pour les marques qui refusent l'ordinaire. Nous architecturons des systèmes IA qui commandent l'attention, convertissent les prospects et multiplient la croissance — silencieusement, sans relâche.",
+    hero_cta1:"Commencer une conversation →", hero_cta2:"Nos Services",
+    ticker:`Automatisation IA <em>✦</em> Génération de Leads <em>✦</em> Stratégie de Marque <em>✦</em> Publicité Payante <em>✦</em> Tunnels de Conversion <em>✦</em> Stratégie de Contenu <em>✦</em> Croissance d'Audience <em>✦</em> Intégration CRM <em>✦</em>`,
+    about_h2:`Pas une agence.<br>Une <em>arme concurrentielle.</em>`,
+    about_p:"Pendant que vos concurrents recrutent davantage, publient plus de contenu et dépensent en publicités — nos clients déploient des systèmes IA qui surpassent des départements marketing entiers. Clarix n'administre pas votre marketing. Nous en ingénions la domination.",
+    stat1_lbl:"Hudson Street, New York", stat1_desc:"Infrastructure d'entreprise. Zéro interruption.",
+    stat2_lbl:"Toujours Actif", stat2_desc:"Vos agents IA ne dorment jamais.",
+    stat3_lbl:"Canaux Couverts", stat3_desc:"Chaque plateforme que votre audience utilise.",
+    svc_tag:"Ce Que Nous Faisons", svc_title:`Services de précision.<br><em>Résultats mesurables.</em>`,
+    svc_note:"Chaque service est conçu autour d'un seul objectif — développer votre activité.",
+    s1_h:"Déploiement d'Agents IA", s1_p:"Agents IA intelligents formés sur votre activité — voix, produits, objectifs. Ils engagent les leads 24h/24.",
+    s2_h:"Gestion de Publicités Payantes", s2_p:"Campagnes publicitaires stratégiques sur Meta, Google, TikTok et YouTube — conçues pour un retour maximal.",
+    s3_h:"Automatisation des Tunnels", s3_p:"Du premier clic à la vente conclue — entièrement automatisé.",
+    s4_h:"Stratégie de Marque & Contenu", s4_p:"Une marque sans voix claire est invisible. Nous développons le positionnement et les systèmes de contenu.",
+    s5_h:"Croissance & Engagement d'Audience", s5_p:"Stratégies organiques et payantes pour développer votre audience sur toutes les plateformes.",
+    s6_h:"Solutions White-Label", s6_p:"Revendez notre infrastructure IA sous votre propre marque.",
+    plat_tag:"Plateformes", plat_title:`Chaque canal.<br><em>Entièrement couvert.</em>`,
+    plat_p:"Que votre audience soit sur WhatsApp, YouTube, TikTok ou les emails — nous les rejoignons là-bas.",
+    proc_tag:"Comment Nous Travaillons", proc_title:`Opérationnel dès<br><em>le premier jour.</em>`,
+    p1_tag:"Découverte", p1_h:"Session Stratégique", p1_p:"Nous apprenons profondément votre activité — audience, objectifs, canaux, concurrents.",
+    p2_tag:"Architecture", p2_h:"Conception du Système", p2_p:"Nous concevons l'architecture complète d'automatisation et de marketing.",
+    p3_tag:"Déploiement", p3_h:"Mise en Production", p3_p:"Votre système se lance. Les agents IA s'activent. Les campagnes commencent.",
+    p4_tag:"Croissance", p4_h:"Optimisation Continue", p4_p:"Nous affinons chaque élément sur la base de données réelles.",
+    con_tag:"Contact", con_title:`Construisons quelque<br>chose <em>d'extraordinaire.</em>`,
+    con_p:"Nous travaillons avec des entreprises ambitieuses prêtes à investir dans une croissance sérieuse.",
+    con_ng:"Nigéria", con_us:"USA", con_em:"Email", con_web:"Web",
+    box_h:"Commencer la conversation", box_p:"Contactez-nous directement sur WhatsApp pour la réponse la plus rapide.",
+    wa_ng:"Nigéria — WhatsApp", wa_us:"USA — WhatsApp", wa_note:"Répond généralement dans l'heure",
+    email_cta:"Envoyer un Email →",
+    footer_rights:"Tous droits réservés.", footer_tag:"Marketing & Automatisation Intelligente",
+    nav_services:"Services", nav_platforms:"Plateformes", nav_process:"Processus", nav_cta:"Travailler Avec Nous"
+  },
+  es:{
+    appearance:"Apariencia", language:"Idioma", dark_mode:"Modo Oscuro", light_mode:"Modo Claro",
+    hero_eyebrow:"Agencia de Crecimiento IA Exclusiva · Solo por Invitación",
+    hero_h1:`Tu competencia<br>ya está<br><em>perdiendo terreno.</em>`,
+    hero_p:"Clarix diseña inteligencia generadora de ingresos para marcas que se niegan a ser ordinarias. Arquitecturamos sistemas de IA que dominan la atención, convierten prospectos y multiplican el crecimiento — silenciosa e implacablemente.",
+    hero_cta1:"Iniciar una Conversación →", hero_cta2:"Nuestros Servicios",
+    ticker:`Automatización IA <em>✦</em> Generación de Leads <em>✦</em> Estrategia de Marca <em>✦</em> Publicidad Pagada <em>✦</em> Embudos de Conversión <em>✦</em> Estrategia de Contenido <em>✦</em> Crecimiento de Audiencia <em>✦</em>`,
+    about_h2:`No solo una agencia.<br>Un <em>sistema de crecimiento.</em>`,
+    about_p:"Donde la mayoría de las agencias entregan informes, nosotros entregamos resultados. Clarix combina infraestructura de IA empresarial con experiencia en marketing estratégico.",
+    stat1_lbl:"Hudson Street, Nueva York", stat1_desc:"Infraestructura empresarial. Cero tiempo de inactividad.",
+    stat2_lbl:"Siempre Activo", stat2_desc:"Tus agentes IA nunca duermen.",
+    stat3_lbl:"Canales Cubiertos", stat3_desc:"Cada plataforma que usa tu audiencia.",
+    svc_tag:"Lo Que Hacemos", svc_title:`Servicios de precisión.<br><em>Resultados medibles.</em>`,
+    svc_note:"Cada servicio está diseñado en torno a un objetivo — hacer crecer tu negocio.",
+    s1_h:"Despliegue de Agentes IA", s1_p:"Agentes IA inteligentes entrenados en tu negocio. Involucran leads y cierran conversaciones las 24 horas.",
+    s2_h:"Gestión de Publicidad Pagada", s2_p:"Campañas estratégicas en Meta, Google, TikTok y YouTube para el máximo retorno.",
+    s3_h:"Automatización de Embudos", s3_p:"Desde el primer clic hasta la venta cerrada — totalmente automatizado.",
+    s4_h:"Estrategia de Marca y Contenido", s4_p:"Una marca sin voz clara es invisible. Desarrollamos posicionamiento y sistemas de contenido.",
+    s5_h:"Crecimiento y Compromiso", s5_p:"Estrategias orgánicas y pagadas para hacer crecer tu audiencia en todas las plataformas.",
+    s6_h:"Soluciones White-Label", s6_p:"Revende nuestra infraestructura IA bajo tu propia marca.",
+    plat_tag:"Plataformas", plat_title:`Cada canal.<br><em>Completamente cubierto.</em>`,
+    plat_p:"Ya sea que tu audiencia esté en WhatsApp, YouTube, TikTok o correo electrónico — los encontramos allí.",
+    proc_tag:"Cómo Trabajamos", proc_title:`Operativo desde<br><em>el primer día.</em>`,
+    p1_tag:"Descubrimiento", p1_h:"Sesión Estratégica", p1_p:"Aprendemos tu negocio en profundidad — audiencia, objetivos, canales, competidores.",
+    p2_tag:"Arquitectura", p2_h:"Diseño del Sistema", p2_p:"Diseñamos la arquitectura completa de automatización y marketing.",
+    p3_tag:"Despliegue", p3_h:"Ir en Vivo", p3_p:"Tu sistema se lanza. Los agentes IA se activan. Las campañas comienzan.",
+    p4_tag:"Crecimiento", p4_h:"Optimización Continua", p4_p:"Refinamos cada elemento basado en datos reales.",
+    con_tag:"Contacto", con_title:`Construyamos algo<br><em>extraordinario.</em>`,
+    con_p:"Trabajamos con empresas ambiciosas listas para invertir en crecimiento serio.",
+    con_ng:"Nigeria", con_us:"EE.UU.", con_em:"Correo", con_web:"Web",
+    box_h:"Iniciar la conversación", box_p:"Contáctanos directamente en WhatsApp para la respuesta más rápida.",
+    wa_ng:"Nigeria — WhatsApp", wa_us:"EE.UU. — WhatsApp", wa_note:"Generalmente responde en una hora",
+    email_cta:"Enviar un Correo →",
+    footer_rights:"Todos los derechos reservados.", footer_tag:"Marketing e Automatización Inteligente",
+    nav_services:"Servicios", nav_platforms:"Plataformas", nav_process:"Proceso", nav_cta:"Trabajar Con Nosotros"
+  },
+  zh:{
+    appearance:"外观", language:"语言", dark_mode:"深色模式", light_mode:"浅色模式",
+    hero_eyebrow:"顶级AI增长机构 · 仅限受邀客户",
+    hero_h1:`您的竞争对手<br>正在<br><em>失去阵地。</em>`,
+    hero_p:"Clarix为拒绝平庸的品牌打造创收智能系统。我们架构命令注意力、转化潜客、持续复利增长的AI系统——沉默而无情，全天候运转。",
+    hero_cta1:"开始对话 →", hero_cta2:"我们的服务",
+    ticker:`AI自动化 <em>✦</em> 潜在客户生成 <em>✦</em> 品牌战略 <em>✦</em> 付费广告 <em>✦</em> 转化漏斗 <em>✦</em> 内容策略 <em>✦</em> 受众增长 <em>✦</em> CRM集成 <em>✦</em>`,
+    about_h2:`不仅仅是一个机构。<br>一个<em>增长系统。</em>`,
+    about_p:"大多数机构交付报告，我们交付结果。Clarix将企业级AI基础设施与战略营销专业知识相结合，为雄心勃勃的企业建立自动化增长引擎。",
+    stat1_lbl:"纽约哈德逊街60号", stat1_desc:"企业级基础设施。零停机时间。",
+    stat2_lbl:"全天候运营", stat2_desc:"您的AI代理永不休眠，永不错过线索。",
+    stat3_lbl:"覆盖渠道", stat3_desc:"管理您受众使用的每个平台。",
+    svc_tag:"我们的服务", svc_title:`精准服务。<br><em>可量化的成果。</em>`,
+    svc_note:"每项服务都围绕一个目标设计——发展您的业务。我们不相信无用功，我们相信您可以在数字中看到的结果。",
+    s1_h:"AI代理部署", s1_p:"针对您业务训练的智能AI代理——声音、产品、目标。他们全天候吸引潜在客户并完成对话。",
+    s2_h:"付费广告管理", s2_p:"在Meta、Google、TikTok和YouTube上的战略性广告活动——以最大回报为目标。",
+    s3_h:"转化漏斗自动化", s3_p:"从第一次点击到成交销售——完全自动化。",
+    s4_h:"品牌与内容策略", s4_p:"没有清晰声音的品牌是不可见的。我们开发定位和内容系统。",
+    s5_h:"受众增长与参与", s5_p:"有机和付费策略在所有相关平台上增长您的受众。",
+    s6_h:"白标与机构解决方案", s6_p:"以您自己的品牌转售我们的AI基础设施。",
+    plat_tag:"平台", plat_title:`每个渠道。<br><em>全面覆盖。</em>`,
+    plat_p:"无论您的受众在WhatsApp、YouTube、TikTok还是电子邮件上——我们都在那里与他们相遇。",
+    proc_tag:"工作方式", proc_title:`第一天即可<br><em>投入运营。</em>`,
+    p1_tag:"发现", p1_h:"战略会议", p1_p:"我们深入了解您的业务——受众、目标、渠道、竞争对手。",
+    p2_tag:"架构", p2_h:"系统设计", p2_p:"在编写任何代码之前，我们设计完整的自动化和营销架构。",
+    p3_tag:"部署", p3_h:"上线", p3_p:"您的系统启动。AI代理上线。活动开始。",
+    p4_tag:"增长", p4_h:"持续优化", p4_p:"我们根据真实数据完善每个元素。每个月您的系统都会更加精锐。",
+    con_tag:"联系我们", con_title:`让我们共同创造<br><em>非凡之作。</em>`,
+    con_p:"我们与准备投资于严肃增长的雄心勃勃的企业合作。",
+    con_ng:"尼日利亚", con_us:"美国", con_em:"邮件", con_web:"网站",
+    box_h:"开始对话", box_p:"直接通过WhatsApp联系我们以获得最快回复。我们将在24小时内安排发现通话。",
+    wa_ng:"尼日利亚 — WhatsApp", wa_us:"美国 — WhatsApp", wa_note:"通常在一小时内回复",
+    email_cta:"发送邮件 →",
+    footer_rights:"版权所有。", footer_tag:"智能营销与自动化",
+    nav_services:"服务", nav_platforms:"平台", nav_process:"流程", nav_cta:"与我们合作"
+  }
+};
+
+const LANG_META = {
+  en:{flag:"🇬🇧",name:"EN"},
+  fr:{flag:"🇫🇷",name:"FR"},
+  es:{flag:"🇪🇸",name:"ES"},
+  zh:{flag:"🇨🇳",name:"中文"}
+};
+
+let currentLang = "en";
+let currentTheme = "dark";
+
+/* ── Apply language ── */
+function applyLang(lang){
+  currentLang = lang;
+  const t = T[lang];
+  document.querySelectorAll('[data-i]').forEach(el=>{
+    const key = el.getAttribute('data-i');
+    if(t[key] !== undefined) el.innerHTML = t[key];
+  });
+  // Update both lang selectors
+  ["Top","Bot"].forEach(s=>{
+    document.getElementById('langFlag'+s).textContent = LANG_META[lang].flag;
+    document.getElementById('langName'+s).textContent = LANG_META[lang].name;
+    document.querySelectorAll('#langDrop'+s+' .lang-option').forEach(opt=>{
+      opt.classList.toggle('active', opt.dataset.lang === lang);
+    });
+  });
+  document.documentElement.setAttribute('lang', lang);
+}
+
+/* ── Apply theme ── */
+function applyTheme(theme){
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  const isDark = theme === 'dark';
+  // Icons & labels
+  ["Top","Bot"].forEach(s=>{
+    document.getElementById('iconMoon'+s).style.display = isDark ? '' : 'none';
+    document.getElementById('iconSun'+s).style.display = isDark ? 'none' : '';
+  });
+  document.querySelectorAll('[data-i="dark_mode"], [data-i="light_mode"]').forEach(el=>{
+    const t = T[currentLang];
+    el.setAttribute('data-i', isDark ? 'dark_mode' : 'light_mode');
+    el.textContent = isDark ? t.dark_mode : t.light_mode;
+  });
+}
+
+function toggleTheme(){
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+}
+
+/* ── Theme toggle buttons ── */
+document.getElementById('themeToggleTop').addEventListener('click', toggleTheme);
+document.getElementById('themeToggleBot').addEventListener('click', toggleTheme);
+document.getElementById('themePillTop').addEventListener('click', toggleTheme);
+document.getElementById('themePillBot').addEventListener('click', toggleTheme);
+
+/* ── Language dropdowns ── */
+["Top","Bot"].forEach(s=>{
+  const wrap = document.getElementById('langWrap'+s);
+  const btn = document.getElementById('langBtn'+s);
+  const drop = document.getElementById('langDrop'+s);
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    // Close the other one
+    const other = s === 'Top' ? 'Bot' : 'Top';
+    document.getElementById('langWrap'+other).classList.remove('open');
+    wrap.classList.toggle('open');
+  });
+  drop.querySelectorAll('.lang-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      applyLang(opt.dataset.lang);
+      wrap.classList.remove('open');
+    });
+  });
+});
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.lang-wrap').forEach(w=>w.classList.remove('open'));
+});
+
+/* ── Cursor ── */
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,[class*="btn"],[class*="toggle"],[class*="pill"],[class*="option"],[class*="item"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+/* ── Nav scroll ── */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('s',scrollY>50));
+
+/* ── Scroll reveal ── */
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');obs.unobserve(e.target);}});},{threshold:.08});
+document.querySelectorAll('.r').forEach(el=>obs.observe(el));
+
+/* Init */
+applyLang('en');
+applyTheme('dark');
+</script>
+</body>
+</html>
